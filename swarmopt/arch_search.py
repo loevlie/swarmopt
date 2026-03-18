@@ -39,23 +39,80 @@ Analyze the experiment history and propose better configurations.
 class ArchSearch:
     """LLM-guided search over any parameter space.
 
-    Define a training function that returns per-epoch metrics, a search space
-    using swarmopt dimension types, and let the LLM figure out what works.
+    Two ways to use it:
 
-    Example::
-
-        from swarmopt import ArchSearch, LogUniform, Categorical
+    **Manual search space** — you define what to search over::
 
         search = ArchSearch(
             train_fn=my_train_fn,
-            search_space={
-                "lr": LogUniform(1e-4, 1e-1),
-                "activation": Categorical(["relu", "gelu", "silu"]),
-            },
+            search_space={"lr": LogUniform(1e-4, 1e-1), ...},
             backend="claude",
         )
-        search.run()
+
+    **From an existing model** — we figure out what's tunable::
+
+        search = ArchSearch.from_model(
+            model=my_resnet,
+            train_fn=my_train_fn,
+            backend="claude",
+        )
+
+    In both cases, call ``search.run()`` and it goes until Ctrl+C.
     """
+
+    @classmethod
+    def from_model(cls, model, train_fn, backend="auto", **kwargs):
+        """Create a search by introspecting an existing PyTorch model.
+
+        Walks the module tree to find tunable components — activations,
+        dropout rates, batch norm layers — and generates a search space
+        automatically. Training hyperparameters (lr, wd, optimizer) are
+        always included.
+
+        Your ``train_fn`` receives ``config["model"]`` with modifications
+        already applied. Just train it and return results::
+
+            def train_fn(config):
+                model = config["model"].to("cuda")
+                lr = config["lr"]
+                # ... your normal training loop ...
+                return {"score": val_loss, "train_losses": [...], ...}
+
+        Args:
+            model: A PyTorch nn.Module instance to introspect.
+            train_fn: Training function — receives config dict with "model" key.
+            backend: LLM backend (same as __init__).
+            **kwargs: Passed to __init__ (log_path, batch_size, device, etc).
+        """
+        from swarmopt.introspect import (
+            introspect, build_search_space, build_ml_context,
+            make_wrapped_train_fn,
+        )
+
+        info = introspect(model)
+        search_space = build_search_space(info)
+        ml_context = build_ml_context(info)
+        wrapped_fn = make_wrapped_train_fn(model, train_fn, info)
+
+        # Print what was found
+        print(f"Introspected model ({info['n_params']:,} params):")
+        if info["activation_paths"]:
+            print(f"  Activations: {', '.join(sorted(info['activations_found']))} "
+                  f"({len(info['activation_paths'])} layers)")
+        if info["has_dropout"]:
+            print(f"  Dropout: {len(info['dropout_paths'])} layers (rate={info['dropout_rate']:.2f})")
+        if info["has_batchnorm"]:
+            print(f"  BatchNorm: {len(info['batchnorm_paths'])} layers")
+        print(f"  Search space: {list(search_space.keys())}")
+        print()
+
+        return cls(
+            train_fn=wrapped_fn,
+            search_space=search_space,
+            backend=backend,
+            ml_context=ml_context,
+            **kwargs,
+        )
 
     def __init__(
         self,

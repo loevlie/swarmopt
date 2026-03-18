@@ -78,6 +78,35 @@ def train_fn(config):
 
 Everything logs to JSONL — crash-safe, resumable. See [`examples/llm_arch_search.py`](examples/llm_arch_search.py) for a full CNN architecture search on FashionMNIST.
 
+### Or start from an existing model
+
+Have a model that works but want to squeeze more out of it? Pass it directly — we introspect the module tree and figure out what's tunable (activations, dropout, batch norm, training hyperparams):
+
+```python
+import torchvision.models as models
+from swarmopt import ArchSearch
+
+model = models.resnet18(num_classes=10)
+
+def train_fn(config):
+    model = config["model"].to("cuda")  # already modified
+    opt = torch.optim.Adam(model.parameters(), lr=config["lr"])
+    # ... your training loop ...
+    return {"score": val_loss, "train_losses": [...], "val_losses": [...]}
+
+search = ArchSearch.from_model(model, train_fn, backend="claude")
+search.run()
+```
+
+```
+Introspected model (11,689,512 params):
+  Activations: ReLU (9 layers)
+  BatchNorm: 20 layers
+  Search space: ['activation', 'use_batchnorm', 'lr', 'wd', 'optimizer']
+```
+
+It'll try swapping ReLU for GELU/SiLU, toggling BatchNorm, and tuning training hyperparams — all while reading the training curves to decide what's actually helping.
+
 ## What the LLM actually sees
 
 This is the core idea. Most hyperparameter tools give the optimizer a single number: *"this config scored 0.85."* We give the LLM the full picture:
