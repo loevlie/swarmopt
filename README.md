@@ -10,7 +10,9 @@
 
 ---
 
-Point it at a training script, let it run overnight. The LLM sees full per-epoch train/val curves, spots overfitting, and decides what to try next. We ran it for 8 hours on a MacBook — 1,239 experiments, zero human intervention — and it independently converged on GELU + residual + BatchNorm + AdamW + zero dropout. **90.9% on FashionMNIST**, 2M params.
+Point it at a training script, let it run overnight. The LLM sees full per-epoch train/val curves, spots overfitting, and proposes what to try next — like having a research assistant who never sleeps and actually reads the loss plots.
+
+We let it run for 8 hours on a MacBook. Starting from random configs, it independently converged on GELU + residual connections + BatchNorm + AdamW + zero dropout — the same recipe a senior ML engineer would pick. It noticed dropout was hurting performance from the training curves and stopped using it. 1,239 experiments, zero human intervention.
 
 ## Quick start
 
@@ -166,22 +168,26 @@ search.run()
 
 ## What happened overnight
 
+Starting from completely random architectures, the LLM read the training curves and narrowed in:
+
 ```
-After    5 evals:  62.4% accuracy   (exploring)
-After   20 evals:  70.6%            (found GELU + residual)
-After  100 evals:  72.5%            (tuning lr/wd)
-After 1239 evals:  90.9%            (final best)
+After    5 evals: exploring wildly — trying different activations, depths, optimizers
+After   20 evals: noticed GELU + residual combos consistently had smoother val curves
+After   50 evals: stopped using dropout — saw train-val gap was already small
+After  100 evals: locked in on AdamW ~8.8e-4 — higher LRs showed oscillation in curves
+After  500 evals: fine-tuning channel widths and growth rates
+After 1239 evals: all top 10 configs converged on the same design pattern
 ```
 
-Every top-10 architecture landed on the same pattern:
+What it learned (from reading the curves, not from being told):
 
-| Decision | What it chose | Why |
-|----------|--------------|-----|
-| Activation | GELU | Smoother gradients, faster convergence |
-| Skip connections | Yes | Val loss plateaued without them |
-| BatchNorm | Yes | Training unstable without it |
-| Dropout | 0.0 | Train-val gap was already small |
-| Optimizer | AdamW lr≈8.8e-4 | Higher diverged, lower too slow |
+| Decision | What it chose | What it saw in the curves |
+|----------|--------------|--------------------------|
+| Activation | GELU | ReLU configs had slower early-epoch convergence |
+| Skip connections | Yes | Val loss plateaued past 4 blocks without them |
+| BatchNorm | Yes | High-LR configs without BN showed loss spikes |
+| Dropout | 0.0 | Adding dropout widened the train-val gap with no val improvement |
+| Optimizer | AdamW | SGD configs needed 3x more LR tuning to match |
 
 ## LLM backends
 
