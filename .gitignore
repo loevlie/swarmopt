@@ -21,6 +21,9 @@ results/
 .vscode/
 *.swp
 
+# Build artifacts
+site/
+
 # OS
 .DS_Store
 

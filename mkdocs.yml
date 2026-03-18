@@ -1,0 +1,32 @@
+site_name: swarmopt
+site_url: https://loevlie.github.io/swarmopt/
+site_description: LLM-guided ML optimization
+repo_url: https://github.com/loevlie/swarmopt
+repo_name: loevlie/swarmopt
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: blue
+      accent: amber
+  features:
+    - content.code.copy
+    - navigation.sections
+
+nav:
+  - Home: index.md
+  - How It Works: how-it-works.md
+  - CLI Reference: cli.md
+  - Python API: api.md
+  - Examples: examples.md
+  - Benchmarks: benchmarks.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - tables

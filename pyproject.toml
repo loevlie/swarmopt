@@ -58,3 +58,8 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["swarmopt", "llm_pso"]
+
+[dependency-groups]
+dev = [
+    "mkdocs-material>=9.7.5",
+]
