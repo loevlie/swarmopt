@@ -54,7 +54,7 @@ class ConfigurableCNN(nn.Module):
         self.use_res = cfg["use_residual"]
         prev, spatial = 3, 32
         for i in range(cfg["n_blocks"]):
-            out = max(8, int(cfg["base_channels"] * cfg["channel_growth"] ** i))
+            out = min(512, max(8, int(cfg["base_channels"] * cfg["channel_growth"] ** i)))
             layers = [nn.Conv2d(prev, out, cfg["kernel_size"], padding=cfg["kernel_size"]//2,
                                 bias=not cfg["use_batchnorm"])]
             if cfg["use_batchnorm"]: layers.append(nn.BatchNorm2d(out))

@@ -46,7 +46,7 @@ class ConfigurableCNN(nn.Module):
         prev_ch = in_channels
 
         for i in range(cfg["n_blocks"]):
-            out_ch = max(8, int(cfg["base_channels"] * (cfg["channel_growth"] ** i)))
+            out_ch = min(512, max(8, int(cfg["base_channels"] * (cfg["channel_growth"] ** i))))
 
             layers = [nn.Conv2d(prev_ch, out_ch, cfg["kernel_size"],
                                 padding=cfg["kernel_size"] // 2, bias=not use_bn)]
