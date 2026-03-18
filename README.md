@@ -19,27 +19,41 @@ pip install swarmopt[llm]
 export ANTHROPIC_API_KEY="sk-ant-..."
 ```
 
-Write a training script with `train_fn` + `search_space`:
+Write a training script. You define two things: a `search_space` dict (what to search over) and a `train_fn` function (how to train). The config dict your function receives has the same keys as your search space — the LLM picks the values.
 
 ```python
 # train.py
-from swarmopt import LogUniform, Categorical
+import torch
+import torch.nn as nn
+from swarmopt import LogUniform, IntUniform, Categorical
 
 search_space = {
     "lr": LogUniform(1e-4, 1e-1),
     "hidden_dim": IntUniform(32, 512),
     "activation": Categorical(["relu", "gelu", "silu"]),
-    "optimizer": Categorical(["adam", "adamw", "sgd"]),
 }
 
+ACTIVATIONS = {"relu": nn.ReLU, "gelu": nn.GELU, "silu": nn.SiLU}
+
 def train_fn(config):
-    model = build_model(config["hidden_dim"], config["activation"])
-    # ... train for N epochs ...
+    # config has the keys you defined above — "lr", "hidden_dim", "activation"
+    model = nn.Sequential(
+        nn.Linear(784, config["hidden_dim"]),
+        ACTIVATIONS[config["activation"]](),
+        nn.Linear(config["hidden_dim"], 10),
+    )
+    optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"])
+
+    train_losses, val_losses = [], []
+    for epoch in range(10):
+        # ... your training loop, tracking per-epoch losses ...
+        train_losses.append(epoch_train_loss)
+        val_losses.append(epoch_val_loss)
+
     return {
-        "score": val_loss,
-        "train_losses": [2.3, 1.1, 0.6],  # per-epoch
-        "val_losses": [2.1, 1.0, 0.7],
-        "val_accuracies": [0.2, 0.5, 0.7],
+        "score": val_losses[-1],          # required (lower is better)
+        "train_losses": train_losses,     # optional but helps the LLM a lot
+        "val_losses": val_losses,         # optional but helps the LLM a lot
     }
 ```
 
@@ -49,23 +63,37 @@ Run it:
 swarmopt run train.py
 ```
 
-That's it. Runs until Ctrl+C. Crash-safe, resumable.
+Runs until Ctrl+C. Crash-safe, resumable. See [`examples/train_fashion.py`](examples/train_fashion.py) for a full working example.
 
 ## Or: just give it a model
 
-Don't want to define a search space? Pass an existing PyTorch model and we'll figure out what's tunable:
+Already have a PyTorch model? Define a `model` variable instead of `search_space`, and swarmopt walks the module tree to find what's tunable (activations, dropout, batch norm). It deep-copies your model each experiment, swaps in the modifications, and passes the modified copy to your `train_fn` as `config["model"]`.
 
 ```python
 # train.py
+import torch
+import torch.nn as nn
 import torchvision.models as models
 
+# swarmopt will introspect this — finds 9 ReLU layers, 20 BatchNorm layers
 model = models.resnet18(num_classes=10)
 
 def train_fn(config):
-    m = config["model"].to("cuda")  # activations/dropout/BN already modified
-    optimizer = torch.optim.Adam(m.parameters(), lr=config["lr"])
-    # ... your normal training loop ...
-    return {"score": val_loss, "train_losses": [...], "val_losses": [...]}
+    # config["model"] is a deep copy with modifications already applied
+    # (e.g., all ReLUs swapped to GELUs, or BatchNorm toggled off)
+    # config also has "lr", "wd", "optimizer" — always included
+    m = config["model"].to("cuda")
+    optimizer = torch.optim.Adam(m.parameters(), lr=config["lr"],
+                                 weight_decay=config["wd"])
+
+    train_losses, val_losses = [], []
+    for epoch in range(5):
+        # ... your training loop ...
+        train_losses.append(epoch_train_loss)
+        val_losses.append(epoch_val_loss)
+
+    return {"score": val_losses[-1], "train_losses": train_losses,
+            "val_losses": val_losses}
 ```
 
 ```bash
@@ -79,7 +107,7 @@ Introspected model (11,689,512 params):
   Search space: ['activation', 'use_batchnorm', 'lr', 'wd', 'optimizer']
 ```
 
-It finds every swappable activation, dropout layer, and batch norm — deep-copies the model each experiment so your original is never touched.
+See [`examples/train_resnet.py`](examples/train_resnet.py) for a full working version of this.
 
 ## CLI
 
@@ -116,21 +144,22 @@ Plus pre-computed signals: `OVERFITTING: train 2.30→0.09, val 1.52→1.89, gap
 
 ## Python API
 
-Same thing, no CLI:
+If you'd rather not use the CLI, the same functionality is available directly:
 
 ```python
 from swarmopt import ArchSearch, LogUniform, Categorical
 
-# Manual search space
+# With a manual search space (same train_fn and search_space as your script)
 search = ArchSearch(
     train_fn=train_fn,
-    search_space={"lr": LogUniform(1e-4, 1e-1), ...},
+    search_space=search_space,
     backend="claude",
+    log_path="search.jsonl",
 )
 search.run()
 
-# Or from a model
-search = ArchSearch.from_model(my_model, train_fn, backend="claude")
+# Or from an existing model (introspects it for you)
+search = ArchSearch.from_model(model, train_fn, backend="claude")
 search.run()
 ```
 
