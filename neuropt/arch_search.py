@@ -61,28 +61,30 @@ class ArchSearch:
 
     @classmethod
     def from_model(cls, model, train_fn, backend="auto", **kwargs):
-        """Create a search by introspecting an existing PyTorch model.
+        """Create a search by introspecting a model.
 
-        Walks the module tree to find tunable components — activations,
-        dropout rates, batch norm layers — and generates a search space
-        automatically. Training hyperparameters (lr, wd, optimizer) are
-        always included.
+        Works with PyTorch nn.Module (swaps activations, dropout, batch norm)
+        and sklearn-compatible models like XGBoost, LightGBM, sklearn estimators
+        (discovers tunable params, asks the LLM for ranges).
 
-        Your ``train_fn`` receives ``config["model"]`` with modifications
-        already applied. Just train it and return results::
-
-            def train_fn(config):
-                model = config["model"].to("cuda")
-                lr = config["lr"]
-                # ... your normal training loop ...
-                return {"score": val_loss, "train_losses": [...], ...}
+        Your ``train_fn`` receives ``config["model"]`` — a modified copy of
+        your model. Just train it and return results.
 
         Args:
-            model: A PyTorch nn.Module instance to introspect.
+            model: PyTorch nn.Module or sklearn-compatible estimator.
             train_fn: Training function — receives config dict with "model" key.
             backend: LLM backend (same as __init__).
             **kwargs: Passed to __init__ (log_path, batch_size, device, etc).
         """
+        from neuropt.introspect import is_sklearn_compatible
+
+        if is_sklearn_compatible(model):
+            return cls._from_sklearn_model(model, train_fn, backend, **kwargs)
+        else:
+            return cls._from_pytorch_model(model, train_fn, backend, **kwargs)
+
+    @classmethod
+    def _from_pytorch_model(cls, model, train_fn, backend, **kwargs):
         from neuropt.introspect import (
             introspect, build_search_space, build_ml_context,
             make_wrapped_train_fn,
@@ -93,8 +95,7 @@ class ArchSearch:
         ml_context = build_ml_context(info)
         wrapped_fn = make_wrapped_train_fn(model, train_fn, info)
 
-        # Print what was found
-        print(f"Introspected model ({info['n_params']:,} params):")
+        print(f"Introspected PyTorch model ({info['n_params']:,} params):")
         if info["activation_paths"]:
             print(f"  Activations: {', '.join(sorted(info['activations_found']))} "
                   f"({len(info['activation_paths'])} layers)")
@@ -102,6 +103,39 @@ class ArchSearch:
             print(f"  Dropout: {len(info['dropout_paths'])} layers (rate={info['dropout_rate']:.2f})")
         if info["has_batchnorm"]:
             print(f"  BatchNorm: {len(info['batchnorm_paths'])} layers")
+        print(f"  Search space: {list(search_space.keys())}")
+        print()
+
+        return cls(
+            train_fn=wrapped_fn,
+            search_space=search_space,
+            backend=backend,
+            ml_context=ml_context,
+            **kwargs,
+        )
+
+    @classmethod
+    def _from_sklearn_model(cls, model, train_fn, backend, **kwargs):
+        from neuropt.introspect import (
+            introspect_sklearn, build_sklearn_search_space_with_llm,
+            build_sklearn_ml_context, make_sklearn_wrapped_train_fn,
+            _fallback_sklearn_search_space,
+        )
+
+        info = introspect_sklearn(model)
+        resolved_backend = _resolve_backend(backend)
+
+        if resolved_backend is not None:
+            print(f"Asking LLM for search ranges for {info['model_type']}...")
+            search_space = build_sklearn_search_space_with_llm(info, resolved_backend)
+        else:
+            search_space = _fallback_sklearn_search_space(info)
+
+        ml_context = build_sklearn_ml_context(info, search_space)
+        wrapped_fn = make_sklearn_wrapped_train_fn(model, train_fn)
+
+        print(f"Introspected {info['model_type']}:")
+        print(f"  Tunable params: {len(info['tunable_params'])}")
         print(f"  Search space: {list(search_space.keys())}")
         print()
 

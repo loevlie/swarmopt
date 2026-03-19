@@ -1,8 +1,13 @@
-"""Introspect a PyTorch model to auto-generate a search space."""
+"""Introspect a model to auto-generate a search space.
+
+Supports PyTorch nn.Module and sklearn-compatible models (XGBoost, LightGBM, etc).
+"""
 
 import copy
+import json
+import re
 
-from neuropt.search_space import Categorical, LogUniform, Uniform
+from neuropt.search_space import Categorical, IntUniform, LogUniform, Uniform
 
 
 # Activation types we know how to swap
@@ -190,3 +195,198 @@ def _set_module(model, path, new_module):
         parent[int(last)] = new_module
     else:
         setattr(parent, last, new_module)
+
+
+# ── Sklearn-compatible model introspection ───────────────────────────────
+
+SKIP_PARAMS = {
+    "random_state", "seed", "n_jobs", "verbose", "verbosity", "silent",
+    "objective", "eval_metric", "use_label_encoder", "device", "gpu_id",
+    "tree_method", "predictor", "booster", "importance_type", "callbacks",
+    "enable_categorical", "feature_types", "max_cat_to_onehot",
+    "max_cat_threshold", "interaction_constraints", "monotone_constraints",
+    "base_score", "validate_parameters", "nthread",
+}
+
+
+def is_sklearn_compatible(model):
+    """Check if a model has sklearn-style get_params/set_params."""
+    return hasattr(model, "get_params") and hasattr(model, "set_params")
+
+
+def introspect_sklearn(model):
+    """Introspect an sklearn-compatible model (XGBoost, LightGBM, sklearn, etc).
+
+    Returns a dict with model class name and tunable parameters + current values.
+    Includes None-valued params since many libraries use None as "use internal default."
+    """
+    params = model.get_params()
+    tunable = {}
+    for name, value in params.items():
+        if name in SKIP_PARAMS:
+            continue
+        if isinstance(value, (int, float, bool, str)):
+            tunable[name] = value
+        elif value is None:
+            tunable[name] = None  # include — LLM knows the real defaults
+
+    return {
+        "model_type": type(model).__name__,
+        "model_module": type(model).__module__,
+        "all_params": params,
+        "tunable_params": tunable,
+    }
+
+
+def build_sklearn_search_space_with_llm(info, backend):
+    """Ask the LLM for reasonable search ranges given the model type and params."""
+    model_type = info["model_type"]
+    tunable = info["tunable_params"]
+
+    prompt = (
+        f"You are setting up a hyperparameter search for a {model_type} model.\n\n"
+        f"Here are its tunable parameters and current values:\n"
+    )
+    for name, value in tunable.items():
+        prompt += f"  {name} = {value!r} ({type(value).__name__})\n"
+
+    prompt += (
+        f"\nFor each parameter, provide a search range as JSON. Use this format:\n"
+        f'{{"param_name": {{"type": "int"|"float"|"log_float"|"bool"|"choice", '
+        f'"min": ..., "max": ..., "choices": [...]}}}}\n\n'
+        f"Rules:\n"
+        f"- Only include parameters worth tuning (skip ones that rarely matter)\n"
+        f"- Use \"log_float\" for parameters that span orders of magnitude (like learning_rate, reg_alpha, reg_lambda)\n"
+        f"- Use \"int\" for integer parameters with a range\n"
+        f"- Use \"float\" for bounded float parameters\n"
+        f"- Use \"bool\" for boolean toggles\n"
+        f"- Use \"choice\" for categorical options\n"
+        f"- Choose ranges that a practitioner would actually search over\n\n"
+        f"Respond with ONLY the JSON object. No explanation."
+    )
+
+    response = backend.generate(prompt, max_tokens=1024)
+
+    # Parse response
+    match = re.search(r'\{.*\}', response, re.DOTALL)
+    if not match:
+        return _fallback_sklearn_search_space(info)
+
+    try:
+        ranges = json.loads(match.group())
+    except json.JSONDecodeError:
+        return _fallback_sklearn_search_space(info)
+
+    space = {}
+    for name, spec in ranges.items():
+        if name not in tunable:
+            continue
+        try:
+            t = spec.get("type", "float")
+            if t == "log_float":
+                space[name] = LogUniform(float(spec["min"]), float(spec["max"]))
+            elif t == "float":
+                space[name] = Uniform(float(spec["min"]), float(spec["max"]))
+            elif t == "int":
+                space[name] = IntUniform(int(spec["min"]), int(spec["max"]))
+            elif t == "bool":
+                space[name] = Categorical([True, False])
+            elif t == "choice":
+                space[name] = Categorical(spec["choices"])
+        except (KeyError, TypeError, ValueError):
+            continue
+
+    if not space:
+        return _fallback_sklearn_search_space(info)
+
+    return space
+
+
+_KNOWN_RANGES = {
+    "max_depth":        IntUniform(3, 12),
+    "n_estimators":     IntUniform(50, 500),
+    "learning_rate":    LogUniform(1e-3, 0.3),
+    "eta":              LogUniform(1e-3, 0.3),
+    "min_child_weight": IntUniform(1, 10),
+    "subsample":        Uniform(0.5, 1.0),
+    "colsample_bytree": Uniform(0.5, 1.0),
+    "colsample_bylevel": Uniform(0.5, 1.0),
+    "colsample_bynode": Uniform(0.5, 1.0),
+    "gamma":            LogUniform(1e-5, 10.0),
+    "reg_alpha":        LogUniform(1e-5, 10.0),
+    "reg_lambda":       LogUniform(1e-5, 10.0),
+    "max_delta_step":   IntUniform(0, 10),
+    "scale_pos_weight": Uniform(0.5, 5.0),
+    "max_leaves":       IntUniform(0, 128),
+    "num_leaves":       IntUniform(15, 127),
+    "min_data_in_leaf": IntUniform(5, 100),
+    "bagging_fraction": Uniform(0.5, 1.0),
+    "feature_fraction": Uniform(0.5, 1.0),
+    "max_features":     Uniform(0.5, 1.0),
+    "min_samples_split": IntUniform(2, 20),
+    "min_samples_leaf": IntUniform(1, 20),
+    "max_samples":      Uniform(0.5, 1.0),
+}
+
+
+def _fallback_sklearn_search_space(info):
+    """Heuristic-based search space when LLM isn't available or fails."""
+    space = {}
+    for name, value in info["tunable_params"].items():
+        if name in _KNOWN_RANGES:
+            space[name] = _KNOWN_RANGES[name]
+        elif isinstance(value, bool):
+            space[name] = Categorical([True, False])
+        elif isinstance(value, int) and value > 0:
+            space[name] = IntUniform(max(1, value // 3), value * 3)
+        elif isinstance(value, float) and value > 0:
+            if value < 0.01 or "reg" in name or "alpha" in name or "lambda" in name:
+                space[name] = LogUniform(value / 10, min(value * 10, 100))
+            elif value <= 1.0:
+                space[name] = Uniform(max(0.0, value - 0.3), min(1.0, value + 0.3))
+            else:
+                space[name] = Uniform(value / 3, value * 3)
+    return space
+
+
+def build_sklearn_ml_context(info, space):
+    """Generate LLM context for an sklearn-compatible model."""
+    parts = [f"You are optimizing a {info['model_type']} model.\n"]
+    parts.append("## Parameters being searched\n")
+    for name, dim in space.items():
+        current = info["tunable_params"].get(name, "?")
+        parts.append(f"- {name} (current: {current!r}): {dim}")
+    parts.append("")
+    parts.append(
+        "## Guidance\n"
+        "- Read the training curves to spot overfitting vs underfitting\n"
+        "- If overfitting: increase regularization, reduce model complexity\n"
+        "- If underfitting: reduce regularization, increase complexity\n"
+        "- Balance exploration with exploitation\n"
+        "- Don't repeat configs that have already been tried"
+    )
+    return "\n".join(parts)
+
+
+def make_sklearn_wrapped_train_fn(model, train_fn):
+    """Wrap train_fn to clone the model and set params from config each call."""
+    def wrapped(config):
+        # Separate search params from non-model keys
+        model_params = {}
+        extra = {}
+        param_names = set(model.get_params().keys())
+        for k, v in config.items():
+            if k in param_names:
+                model_params[k] = v
+            else:
+                extra[k] = v
+
+        from sklearn.base import clone
+        cloned = clone(model)
+        cloned.set_params(**model_params)
+
+        config_with_model = dict(config)
+        config_with_model["model"] = cloned
+        return train_fn(config_with_model)
+
+    return wrapped
