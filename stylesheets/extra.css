@@ -1,14 +1,15 @@
 /* Brand colors */
 :root {
-  --md-primary-fg-color: #1a1a2e;
+  --md-primary-fg-color: #1565c0;
   --md-primary-bg-color: #ffffff;
-  --md-accent-fg-color: #4fc3f7;
+  --md-accent-fg-color: #29b6f6;
 }
 
 [data-md-color-scheme="slate"] {
-  --md-primary-fg-color: #0f0f1a;
+  --md-primary-fg-color: #1565c0;
   --md-primary-bg-color: #e0e0e0;
   --md-accent-fg-color: #4fc3f7;
+  --md-default-bg-color: #1e1e2e;
 }
 
 /* Hero section on landing page */

@@ -20,7 +20,7 @@
         
       
       
-      <link rel="icon" href="assets/logo.svg">
+      <link rel="icon" href="assets/icon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#neuropt" class="md-skip">
+        <a href="#two-ways-to-use-it" class="md-skip">
           Skip to content
         </a>
       
@@ -94,7 +94,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="." title="neuropt" class="md-header__button md-logo" aria-label="neuropt" data-md-component="logo">
       
-  <img src="assets/logo.svg" alt="logo">
+  <img src="assets/icon.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -323,7 +323,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="." title="neuropt" class="md-nav__button md-logo" aria-label="neuropt" data-md-component="logo">
       
-  <img src="assets/logo.svg" alt="logo">
+  <img src="assets/icon.png" alt="logo">
 
     </a>
     neuropt
@@ -355,8 +355,6 @@
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
-      
-        
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
@@ -399,8 +397,6 @@
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
-  
-    
   
   
     <label class="md-nav__title" for="__toc">
@@ -907,8 +903,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1008,13 +1002,16 @@
   
 
 
+  <h1>Home</h1>
+
 <div class="hero">
-<h1 id="neuropt">neuropt</h1>
+<p><img src="assets/banner.png" alt="neuropt — a robot scientist reading training curves" style="max-width: 700px; width: 100%; border-radius: 12px;"></p>
 <p class="tagline">An LLM reads your training curves and designs your next experiment.</p>
 <p class="install-cmd">pip install neuropt[llm]</p>
 </div>
+<p><img src="assets/benchmark.png" alt="Benchmark: neuropt vs Optuna vs Random" style="max-width: 700px; width: 100%; border-radius: 8px; margin: 0.5rem 0 1rem;"></p>
 <div class="benchmark-callout">
-<p><strong>Beats Optuna in 5 evals.</strong> On ViT fine-tuning (CIFAR-10), neuropt found a config with <strong>0.142 val loss / 95.7% accuracy</strong> in 10 evals. Optuna's best was 0.195. The LLM understood that <code>last_blocks</code> freeze + AdamW + lr=3e-4 was the right strategy — not something a statistical surrogate can reason about.</p>
+<p><strong>Beats Optuna within 15 evals.</strong> Same budget, same search space (14 params), same CNN training on FashionMNIST. neuropt reads per-epoch training curves and reasons about <em>why</em> configs work — not just which ones scored well. <a href="benchmarks/">See benchmarks</a> for details.</p>
 </div>
 <h2 id="two-ways-to-use-it">Two ways to use it</h2>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Option 1: Define a search space</label><label for="__tabbed_1_2">Option 2: Give it a model</label></div>

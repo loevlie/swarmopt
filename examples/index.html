@@ -22,7 +22,7 @@
         
       
       
-      <link rel="icon" href="../assets/logo.svg">
+      <link rel="icon" href="../assets/icon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
@@ -96,7 +96,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="neuropt" class="md-header__button md-logo" aria-label="neuropt" data-md-component="logo">
       
-  <img src="../assets/logo.svg" alt="logo">
+  <img src="../assets/icon.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -325,7 +325,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="neuropt" class="md-nav__button md-logo" aria-label="neuropt" data-md-component="logo">
       
-  <img src="../assets/logo.svg" alt="logo">
+  <img src="../assets/icon.png" alt="logo">
 
     </a>
     neuropt
@@ -793,10 +793,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#resnet-tuning-with-model-introspection" class="md-nav__link">
+  <a href="#resnet-fine-tuning-with-model-introspection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ResNet tuning with model introspection
+        ResNet fine-tuning with model introspection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vit-fine-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ViT fine-tuning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notebook-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notebook usage
       
     </span>
   </a>
@@ -896,10 +918,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#resnet-tuning-with-model-introspection" class="md-nav__link">
+  <a href="#resnet-fine-tuning-with-model-introspection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ResNet tuning with model introspection
+        ResNet fine-tuning with model introspection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vit-fine-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ViT fine-tuning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notebook-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notebook usage
       
     </span>
   </a>
@@ -944,12 +988,37 @@
 </code></pre></div>
 <p>Source: <a href="https://github.com/loevlie/neuropt/blob/main/examples/train_fashion.py"><code>examples/train_fashion.py</code></a></p>
 <p>Searches over: block count, channel width, channel growth, kernel size, activation, residual connections, batch norm, dropout, pooling strategy, FC head size, learning rate, weight decay, optimizer.</p>
-<h2 id="resnet-tuning-with-model-introspection">ResNet tuning with model introspection</h2>
-<p>Give it a ResNet, it figures out what to tune.</p>
+<h2 id="resnet-fine-tuning-with-model-introspection">ResNet fine-tuning with model introspection</h2>
+<p>Give it a pretrained ResNet — neuropt auto-detects what to tune.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>neuropt<span class="w"> </span>run<span class="w"> </span>examples/train_resnet.py<span class="w"> </span>--backend<span class="w"> </span>claude
 </code></pre></div>
 <p>Source: <a href="https://github.com/loevlie/neuropt/blob/main/examples/train_resnet.py"><code>examples/train_resnet.py</code></a></p>
-<p>Automatically discovers 9 ReLU layers and 20 BatchNorm layers, generates a search space of 5 parameters.</p>
+<p>neuropt discovers activations, BatchNorm layers, pooling, and detects pretrained weights. It generates a search space including freeze strategies, learning rate, weight decay, and optimizer — no manual configuration needed.</p>
+<h2 id="vit-fine-tuning">ViT fine-tuning</h2>
+<p>Same idea with a Vision Transformer:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">neuropt</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchSearch</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">vit_b_16</span><span class="p">,</span> <span class="n">ViT_B_16_Weights</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">vit_b_16</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">ViT_B_16_Weights</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">search</span> <span class="o">=</span> <span class="n">ArchSearch</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_fn</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;claude&quot;</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">search</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">max_evals</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</code></pre></div>
+<p>neuropt detects LayerNorm, MHA dropout, and pretrained weights. It adds fine-tuning strategies (head_only, last layers, full) alongside activation swaps and dropout tuning.</p>
+<h2 id="notebook-usage">Notebook usage</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">neuropt</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchSearch</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">search</span> <span class="o">=</span> <span class="n">ArchSearch</span><span class="p">(</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">train_fn</span><span class="o">=</span><span class="n">train_fn</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">search_space</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">),</span> <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="s2">&quot;gelu&quot;</span><span class="p">,</span> <span class="s2">&quot;silu&quot;</span><span class="p">]},</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;claude&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">)</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">search</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">max_evals</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="nb">print</span><span class="p">(</span><span class="n">search</span><span class="o">.</span><span class="n">best_config</span><span class="p">)</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="nb">print</span><span class="p">(</span><span class="n">search</span><span class="o">.</span><span class="n">best_score</span><span class="p">)</span>
+</code></pre></div>
+<p>Crash-safe and resumable — if the kernel dies, restart and call <code>search.run()</code> again. It picks up from the JSONL log.</p>
 <h2 id="overnight-results">Overnight results</h2>
 <p>We ran <code>train_fashion.py</code> for 8 hours on an M1 MacBook with the Claude backend (Haiku). The LLM:</p>
 <ul>

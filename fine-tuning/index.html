@@ -22,7 +22,7 @@
         
       
       
-      <link rel="icon" href="../assets/logo.svg">
+      <link rel="icon" href="../assets/icon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
@@ -96,7 +96,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="neuropt" class="md-header__button md-logo" aria-label="neuropt" data-md-component="logo">
       
-  <img src="../assets/logo.svg" alt="logo">
+  <img src="../assets/icon.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -325,7 +325,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="neuropt" class="md-nav__button md-logo" aria-label="neuropt" data-md-component="logo">
       
-  <img src="../assets/logo.svg" alt="logo">
+  <img src="../assets/icon.png" alt="logo">
 
     </a>
     neuropt
@@ -749,6 +749,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#early-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Early results
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1017,6 +1028,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#early-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Early results
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1150,6 +1172,8 @@
 <li>L2-SP prevents forgetting — worth trying if full fine-tuning overfits</li>
 </ul>
 <p>This lets the LLM reason about your training curves in the context of fine-tuning: <em>"val loss is rising with <code>full</code> strategy → try <code>head_only</code> or increase L2-SP"</em> rather than generic overfitting advice.</p>
+<h2 id="early-results">Early results</h2>
+<p>In a 10-eval benchmark fine-tuning ViT-B/16 on CIFAR-10, neuropt found a config achieving <strong>0.142 val loss / 95.7% accuracy</strong> — the LLM quickly converged on <code>last_blocks</code> freeze + AdamW + lr=3e-4. Optuna's best in the same budget was 0.195. The LLM's domain knowledge about freeze strategies gave it an edge that statistical surrogates can't match.</p>
 
 
 
