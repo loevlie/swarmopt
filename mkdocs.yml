@@ -19,6 +19,7 @@ nav:
   - How It Works: how-it-works.md
   - CLI Reference: cli.md
   - Python API: api.md
+  - Tuning XGBoost: xgboost.md
   - Examples: examples.md
   - Benchmarks: benchmarks.md
 
