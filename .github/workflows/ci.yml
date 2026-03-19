@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Import check
+        run: |
+          uv run python -c "from swarmopt import ArchSearch, LogUniform, Uniform, IntUniform, Categorical"
+          uv run python -c "from swarmopt.backends import get_default_backend, get_backend_by_name"
+          uv run python -c "from swarmopt.introspect import introspect"
+          uv run python -c "from swarmopt.cli import app"
+
+      - name: Smoke test (random search, no LLM)
+        run: |
+          uv run python -c "
+          from swarmopt import ArchSearch
+          search = ArchSearch(
+              train_fn=lambda cfg: {'score': cfg['lr'] * 10},
+              search_space={'lr': (1e-4, 1e-1), 'x': [1, 2, 3]},
+              backend='none',
+              log_path='/tmp/ci_test.jsonl',
+          )
+          search.run(max_evals=3)
+          assert search.best_score < 1.0
+          print('OK')
+          "

@@ -724,10 +724,10 @@ def _resolve_backend(backend):
     if backend is None or backend == "none":
         return None
     if backend == "auto":
-        from llm_pso.backends import get_default_backend
+        from swarmopt.backends import get_default_backend
         return get_default_backend()
     if isinstance(backend, str):
-        from llm_pso.backends import get_backend_by_name
+        from swarmopt.backends import get_backend_by_name
         return get_backend_by_name(backend)
     return backend  # assume it's a backend instance
 

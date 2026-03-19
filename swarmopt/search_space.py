@@ -1,4 +1,4 @@
-"""Search space dimension classes for PSO hyperparameter tuning."""
+"""Search space dimension classes."""
 
 import math
 

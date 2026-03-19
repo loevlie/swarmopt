@@ -1,12 +1,10 @@
 """OpenAI API backend via the openai SDK."""
 
 import os
-
-from llm_pso.backends.base import BaseLLMBackend
+from swarmopt.backends.base import BaseLLMBackend
 
 
 class OpenAIBackend(BaseLLMBackend):
-    """OpenAI API backend using the openai Python SDK."""
 
     def __init__(self, model: str = "gpt-4o-mini"):
         self._model = model

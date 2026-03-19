@@ -12,6 +12,7 @@ wheels/
 # Data & results
 data/
 *.jsonl
+benchmark_results.json
 *.tsv
 *.lock
 results/

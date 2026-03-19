@@ -18,7 +18,7 @@ Point it at a training script, let it run overnight. The LLM sees full per-epoch
   <img src="assets/benchmark.png" alt="Benchmark: swarmopt vs Optuna vs Random" width="700">
 </p>
 
-Same 15-eval budget, 14-parameter CNN search space. swarmopt starts ahead because the LLM already knows things like "residual connections help deep networks" and "high learning rates cause instability" — Optuna has to discover all of that from data. Note: Optuna's TPE was configured with `n_startup_trials=3` for a fair comparison (default is 10, which would make it purely random for most of the budget).
+Same 15-eval budget, 14-parameter CNN search space. These results use **Claude Haiku 4.5** (the default — smallest and cheapest Claude model). We expect even stronger results with Sonnet or Opus. Optuna's TPE was configured with `n_startup_trials=3` for a fair comparison.
 
 ## Quick start
 

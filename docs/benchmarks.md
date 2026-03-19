@@ -23,6 +23,8 @@ All methods get exactly 15 evaluations on the same search space. FashionMNIST, 5
 
 Claude was ahead of Optuna from eval 5 onward — it started with good architectural priors (residual connections, AdamW, reasonable LR) instead of discovering them through trial and error.
 
+All benchmark results used **Claude Haiku 4.5** (the smallest, cheapest Claude model at ~$0.01/run). We expect stronger results with Sonnet or Opus, which have better reasoning capabilities for complex search spaces.
+
 ### What went wrong with the other methods
 
 **Optuna TPE** — 7 out of 15 evals scored above 1.0 (worse than random chance). With 14 parameters, TPE's surrogate model needs many more samples before it becomes useful. It found one good config at eval 8 but couldn't build on it.
