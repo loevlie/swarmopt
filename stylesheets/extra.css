@@ -1,0 +1,75 @@
+/* Brand colors */
+:root {
+  --md-primary-fg-color: #1a1a2e;
+  --md-primary-bg-color: #ffffff;
+  --md-accent-fg-color: #4fc3f7;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #0f0f1a;
+  --md-primary-bg-color: #e0e0e0;
+  --md-accent-fg-color: #4fc3f7;
+}
+
+/* Hero section on landing page */
+.hero {
+  text-align: center;
+  padding: 2rem 0 1rem;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.hero .tagline {
+  font-size: 1.2rem;
+  opacity: 0.8;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+}
+
+.hero .install-cmd {
+  display: inline-block;
+  background: var(--md-code-bg-color);
+  padding: 0.5rem 1.5rem;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Feature grid */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.feature-card {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 8px;
+  padding: 1.2rem;
+}
+
+.feature-card h3 {
+  margin-top: 0;
+  font-size: 1rem;
+}
+
+.feature-card p {
+  font-size: 0.9rem;
+  opacity: 0.85;
+  margin-bottom: 0;
+}
+
+/* Benchmark callout */
+.benchmark-callout {
+  background: linear-gradient(135deg, rgba(79, 195, 247, 0.08), rgba(79, 195, 247, 0.02));
+  border-left: 3px solid var(--md-accent-fg-color);
+  border-radius: 4px;
+  padding: 1rem 1.2rem;
+  margin: 1.5rem 0;
+}
