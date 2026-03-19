@@ -284,7 +284,12 @@ def build_sklearn_search_space_with_llm(info, backend):
         try:
             t = spec.get("type", "float")
             if t == "log_float":
-                space[name] = LogUniform(float(spec["min"]), float(spec["max"]))
+                lo, hi = float(spec["min"]), float(spec["max"])
+                if lo <= 0:
+                    lo = 1e-8
+                if hi <= lo:
+                    hi = lo * 100
+                space[name] = LogUniform(lo, hi)
             elif t == "float":
                 space[name] = Uniform(float(spec["min"]), float(spec["max"]))
             elif t == "int":
