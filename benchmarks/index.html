@@ -690,6 +690,7 @@
 </tbody>
 </table>
 <p>Claude was ahead of Optuna from eval 5 onward — it started with good architectural priors (residual connections, AdamW, reasonable LR) instead of discovering them through trial and error.</p>
+<p>All benchmark results used <strong>Claude Haiku 4.5</strong> (the smallest, cheapest Claude model at ~$0.01/run). We expect stronger results with Sonnet or Opus, which have better reasoning capabilities for complex search spaces.</p>
 <h3 id="what-went-wrong-with-the-other-methods">What went wrong with the other methods</h3>
 <p><strong>Optuna TPE</strong> — 7 out of 15 evals scored above 1.0 (worse than random chance). With 14 parameters, TPE's surrogate model needs many more samples before it becomes useful. It found one good config at eval 8 but couldn't build on it.</p>
 <p><strong>Random search</strong> — Actually outperformed Qwen, which says more about Qwen's parse failures than random's quality. Random got lucky with a few configs but has no mechanism to improve.</p>
