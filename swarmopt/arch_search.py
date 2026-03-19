@@ -827,7 +827,7 @@ def _short_config(cfg):
     """One-line summary of a config dict."""
     parts = []
     for k, v in cfg.items():
-        if k == "device":
+        if k in ("device", "model"):
             continue
         parts.append(f"{k}={_fmt(v)}")
-    return " ".join(parts[:6])  # cap at 6 for readability
+    return " ".join(parts)
