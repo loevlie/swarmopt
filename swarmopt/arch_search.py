@@ -274,25 +274,112 @@ class ArchSearch:
 
     # ── Config generation ──────────────────────────────────────────────────
 
+    MAX_RETRIES = 3
+
     def _get_configs(self, history, rng):
-        """Ask LLM for configs, fall back to random."""
-        if self._backend is not None:
+        """Ask LLM for configs with retry loop for duplicates."""
+        if self._backend is None:
+            return [_random_config(self.search_space, rng)
+                    for _ in range(self.batch_size)], "random"
+
+        prompt = self._build_prompt(history)
+
+        for attempt in range(self.MAX_RETRIES):
             try:
-                prompt = self._build_prompt(history)
                 response = self._backend.generate(prompt, max_tokens=2048)
                 configs = self._parse_response(response)
-                if configs is not None:
-                    self.llm_success += 1
-                    return configs, "llm"
-                else:
+
+                if configs is None:
                     self.llm_fallback += 1
                     print(f"  [LLM parse failed, using random]")
+                    break
+
+                # Check for duplicates against history
+                dupes = self._find_duplicates(configs, history)
+                if not dupes:
+                    self.llm_success += 1
+                    return configs, "llm"
+
+                # Tell the LLM what it repeated and ask for something new
+                if attempt < self.MAX_RETRIES - 1:
+                    print(f"  [retry {attempt+1}: {len(dupes)} duplicate configs, asking LLM to adjust]")
+                    prompt = self._build_retry_prompt(configs, dupes, history)
+                else:
+                    # Last attempt — keep non-duplicate configs, replace dupes with random
+                    print(f"  [still {len(dupes)} duplicates after {self.MAX_RETRIES} tries, replacing with random]")
+                    for i in dupes:
+                        configs[i] = _random_config(self.search_space, rng)
+                    self.llm_success += 1
+                    return configs, "llm"
+
             except Exception as e:
                 self.llm_fallback += 1
                 print(f"  [LLM error: {e}, using random]")
+                break
 
         return [_random_config(self.search_space, rng)
                 for _ in range(self.batch_size)], "random"
+
+    def _find_duplicates(self, configs, history):
+        """Return indices of configs that match previous experiments."""
+        seen = set()
+        for row in history:
+            cfg = row.get("config", {})
+            seen.add(_config_key(cfg))
+
+        dupes = []
+        for i, cfg in enumerate(configs):
+            if _config_key(cfg) in seen:
+                dupes.append(i)
+        return dupes
+
+    def _build_retry_prompt(self, configs, dupe_indices, history):
+        """Build a follow-up prompt telling the LLM what it repeated."""
+        parts = [self.ml_context.strip(), ""]
+
+        # Search space (abbreviated)
+        parts.append("## Config Space\n")
+        for name, dim in self.search_space.items():
+            parts.append(_describe_dim(name, dim))
+        parts.append("")
+
+        # What it proposed that was already tried
+        parts.append("## You proposed configs that were already tried\n")
+        parts.append("These configs have already been evaluated — don't propose them again:\n")
+
+        for i in dupe_indices:
+            cfg = configs[i]
+            key = _config_key(cfg)
+            # Find the matching result
+            prev_result = None
+            for row in reversed(history):
+                if _config_key(row.get("config", {})) == key:
+                    prev_result = row
+                    break
+
+            parts.append(f"Config {i+1}: {json.dumps(cfg, default=str)}")
+            if prev_result:
+                vl = prev_result.get("val_loss", "?")
+                va = prev_result.get("val_accuracy", "?")
+                vl_s = f"{vl:.4f}" if isinstance(vl, (int, float)) else str(vl)
+                va_s = f"{va:.4f}" if isinstance(va, (int, float)) else str(va)
+                parts.append(f"  → Result: loss={vl_s}, accuracy={va_s}")
+            parts.append("")
+
+        # Best result for context
+        if self.best_config is not None:
+            parts.append(f"## Current best: loss={self.best_score:.4f}")
+            parts.append(f"Config: {json.dumps(self.best_config, default=str)}")
+            parts.append("")
+
+        parts.append(f"## Task\n")
+        parts.append(
+            f"Propose exactly {self.batch_size} NEW configs that are DIFFERENT from "
+            "anything already tried. Focus on changes that could beat the current best. "
+            "Try meaningfully different values, not tiny tweaks.\n"
+            "Respond with ONLY a JSON array of config objects."
+        )
+        return "\n".join(parts)
 
     # ── Experiment runner ──────────────────────────────────────────────────
 
@@ -441,7 +528,8 @@ class ArchSearch:
         parts.append(f"## Task\n")
         parts.append(
             f"Propose exactly {self.batch_size} configs to try next. "
-            "Balance exploration with exploitation.\n"
+            "Each config must be DIFFERENT from anything in the history above. "
+            "Don't repeat configs — focus on finding the biggest possible improvement.\n"
             "Respond with ONLY a JSON array of config objects. "
             "No explanation, no markdown fences."
         )
@@ -712,6 +800,19 @@ def _fmt(v):
             return f"{v:.2e}"
         return f"{v:.3f}"
     return str(v)
+
+
+def _config_key(cfg):
+    """Hashable key for a config dict, rounding floats for fuzzy matching."""
+    parts = []
+    for k in sorted(cfg.keys()):
+        if k in ("device", "model"):
+            continue
+        v = cfg[k]
+        if isinstance(v, float):
+            v = round(v, 6)
+        parts.append((k, v))
+    return tuple(parts)
 
 
 def _short_config(cfg):
