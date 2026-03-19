@@ -20,13 +20,7 @@ Point it at a training script, let it run overnight. The LLM sees full per-epoch
 
 Same 15-eval budget on two tasks: CNN architecture search (14 params) and XGBoost tuning (9 params, 7-class Covertype). These results use **Claude Haiku 4.5** (the smallest and cheapest of their 4.5 models). We expect even stronger results with Sonnet or Opus. Optuna's TPE was configured with `n_startup_trials=3` for a fair comparison (default is 10, which would make it purely random for most of the budget).
 
-### It keeps improving
-
-<p align="center">
-  <img src="assets/convergence_animated.gif" alt="neuropt convergence over 200 evals" width="600">
-</p>
-
-neuropt at 200 evals (0.337) vs Optuna's best at 15 (0.454). The other methods stopped — neuropt kept going. Local Qwen backend (experimental) beat Optuna too (0.440) despite 40% JSON parse failures.
+In a separate 200-eval run on the CNN task, neuropt again beat the others within 15 evals and kept improving — reaching 0.337 val loss by eval 200 (vs 0.454 for Optuna's best at 15). Local Qwen backend (experimental) also beat Optuna at 15 evals (0.440 vs 0.454) despite a 40% JSON parse failure rate.
 
 ## Quick start
 
