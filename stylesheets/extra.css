@@ -55,6 +55,39 @@
   line-height: 1.5;
 }
 
+/* ── Numbered steps (Tailwind-inspired) ── */
+.step {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  padding: 0.5rem 0;
+}
+
+.step-number {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-content: center;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 4px;
+  font-family: var(--md-code-font);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--md-default-fg-color--light);
+  margin-top: 0.3rem;
+}
+
+.step-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.step-content h3 {
+  margin-top: 0 !important;
+}
+
 /* ── Benchmark callout ── */
 .benchmark-callout {
   background: var(--md-code-bg-color);

@@ -496,10 +496,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#install" class="md-nav__link">
+  <a href="#install-neuropt" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Install
+        Install neuropt
       
     </span>
   </a>
@@ -507,10 +507,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#1-write-a-training-function" class="md-nav__link">
+  <a href="#write-a-training-function" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Write a training function
+        Write a training function
       
     </span>
   </a>
@@ -518,10 +518,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-define-what-to-search" class="md-nav__link">
+  <a href="#define-what-to-search" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Define what to search
+        Define what to search
       
     </span>
   </a>
@@ -529,10 +529,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-run-it" class="md-nav__link">
+  <a href="#run-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Run it
+        Run it
       
     </span>
   </a>
@@ -540,10 +540,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#or-skip-the-search-space-give-it-a-model" class="md-nav__link">
+  <a href="#or-skip-the-search-space" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Or skip the search space — give it a model
+        Or skip the search space
       
     </span>
   </a>
@@ -946,10 +946,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#install" class="md-nav__link">
+  <a href="#install-neuropt" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Install
+        Install neuropt
       
     </span>
   </a>
@@ -957,10 +957,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#1-write-a-training-function" class="md-nav__link">
+  <a href="#write-a-training-function" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Write a training function
+        Write a training function
       
     </span>
   </a>
@@ -968,10 +968,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-define-what-to-search" class="md-nav__link">
+  <a href="#define-what-to-search" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Define what to search
+        Define what to search
       
     </span>
   </a>
@@ -979,10 +979,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-run-it" class="md-nav__link">
+  <a href="#run-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Run it
+        Run it
       
     </span>
   </a>
@@ -990,10 +990,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#or-skip-the-search-space-give-it-a-model" class="md-nav__link">
+  <a href="#or-skip-the-search-space" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Or skip the search space — give it a model
+        Or skip the search space
       
     </span>
   </a>
@@ -1032,85 +1032,123 @@
 
 
 <h1 id="quick-start">Quick Start</h1>
-<h2 id="install">Install</h2>
+<p>Get neuropt running in under 2 minutes.</p>
+<hr />
+<div class="step">
+<div class="step-number">01</div>
+<div class="step-content">
+<h3 id="install-neuropt">Install neuropt</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;neuropt[llm]&quot;</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span><span class="s2">&quot;sk-ant-...&quot;</span>
 </code></pre></div>
-<h2 id="1-write-a-training-function">1. Write a training function</h2>
-<p>Your function trains a model and returns the results. neuropt calls it repeatedly with different configs.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># train.py</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">train_fn</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="c1"># Build model using config values</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">784</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;hidden_dim&quot;</span><span class="p">]),</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;dropout&quot;</span><span class="p">]),</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;hidden_dim&quot;</span><span class="p">],</span> <span class="mi">10</span><span class="p">),</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="p">)</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;lr&quot;</span><span class="p">])</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="c1"># ... train for a few epochs ...</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    <span class="k">return</span> <span class="p">{</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">val_loss</span><span class="p">,</span>          <span class="c1"># required — what to optimize</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="s2">&quot;train_losses&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">],</span>      <span class="c1"># optional — per-epoch train loss</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        <span class="s2">&quot;val_losses&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">],</span>        <span class="c1"># optional — per-epoch val loss</span>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>        <span class="s2">&quot;accuracy&quot;</span><span class="p">:</span> <span class="mf">0.92</span><span class="p">,</span>           <span class="c1"># optional — any extra metrics</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>    <span class="p">}</span>
+<p>Set your API key:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span><span class="s2">&quot;sk-ant-...&quot;</span>
+</code></pre></div>
+</div>
+</div>
+<hr />
+<div class="step">
+<div class="step-number">02</div>
+<div class="step-content">
+<h3 id="write-a-training-function">Write a training function</h3>
+<p>Your function trains a model and returns results. neuropt calls it with different configs each time.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># train.py</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">train_fn</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">model</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;hidden_dim&quot;</span><span class="p">],</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;activation&quot;</span><span class="p">])</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;lr&quot;</span><span class="p">])</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">train_losses</span><span class="p">,</span> <span class="n">val_losses</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="c1"># ... train one epoch ...</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="n">train_losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train_loss</span><span class="p">)</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="n">val_losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val_loss</span><span class="p">)</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">val_losses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>        <span class="c1"># required</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>        <span class="s2">&quot;train_losses&quot;</span><span class="p">:</span> <span class="n">train_losses</span><span class="p">,</span>    <span class="c1"># helps the LLM spot overfitting</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>        <span class="s2">&quot;val_losses&quot;</span><span class="p">:</span> <span class="n">val_losses</span><span class="p">,</span>        <span class="c1"># helps the LLM spot underfitting</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>        <span class="s2">&quot;accuracy&quot;</span><span class="p">:</span> <span class="n">val_acc</span><span class="p">,</span>             <span class="c1"># any extra metrics you want</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>    <span class="p">}</span>
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Return per-epoch losses</p>
-<p>The more you return, the smarter the LLM gets. Per-epoch curves let it spot overfitting and learning rate issues.</p>
+<p>The more you return, the smarter the LLM gets. Per-epoch curves let it reason about <em>why</em> a config worked — not just that it did.</p>
 </div>
-<h2 id="2-define-what-to-search">2. Define what to search</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># train.py (continued)</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">search_space</span> <span class="o">=</span> <span class="p">{</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">),</span>              <span class="c1"># auto → log-scale</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="s2">&quot;hidden_dim&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">512</span><span class="p">),</span>          <span class="c1"># auto → integer</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>            <span class="c1"># auto → uniform</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="s2">&quot;gelu&quot;</span><span class="p">],</span>   <span class="c1"># auto → categorical</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">}</span>
+</div>
+</div>
+<hr />
+<div class="step">
+<div class="step-number">03</div>
+<div class="step-content">
+<h3 id="define-what-to-search">Define what to search</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># train.py (continued)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">search_space</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">),</span>              <span class="c1"># auto → log-scale</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="s2">&quot;hidden_dim&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">512</span><span class="p">),</span>          <span class="c1"># auto → integer</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>            <span class="c1"># auto → uniform</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="s2">&quot;gelu&quot;</span><span class="p">],</span>   <span class="c1"># auto → categorical</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="p">}</span>
 </code></pre></div>
-<h2 id="3-run-it">3. Run it</h2>
+<p>Tuples become ranges, lists become choices. neuropt infers the right sampling strategy from the param name and value types.</p>
+</div>
+</div>
+<hr />
+<div class="step">
+<div class="step-number">04</div>
+<div class="step-content">
+<h3 id="run-it">Run it</h3>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">CLI</label><label for="__tabbed_1_2">Python</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>neuropt<span class="w"> </span>run<span class="w"> </span>train.py
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>neuropt<span class="w"> </span>run<span class="w"> </span>train.py
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>neuropt<span class="w"> </span>run<span class="w"> </span>train.py<span class="w"> </span>--backend<span class="w"> </span>claude<span class="w"> </span>-n<span class="w"> </span><span class="m">50</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">neuropt</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchSearch</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">search</span> <span class="o">=</span> <span class="n">ArchSearch</span><span class="p">(</span><span class="n">train_fn</span><span class="o">=</span><span class="n">train_fn</span><span class="p">,</span> <span class="n">search_space</span><span class="o">=</span><span class="n">search_space</span><span class="p">)</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">search</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">max_evals</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nb">print</span><span class="p">(</span><span class="n">search</span><span class="o">.</span><span class="n">best_config</span><span class="p">)</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">search</span><span class="o">.</span><span class="n">best_score</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">neuropt</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchSearch</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">search</span> <span class="o">=</span> <span class="n">ArchSearch</span><span class="p">(</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">train_fn</span><span class="o">=</span><span class="n">train_fn</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">search_space</span><span class="o">=</span><span class="n">search_space</span><span class="p">,</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;claude&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">)</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">search</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">max_evals</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="nb">print</span><span class="p">(</span><span class="n">search</span><span class="o">.</span><span class="n">best_config</span><span class="p">)</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="nb">print</span><span class="p">(</span><span class="n">search</span><span class="o">.</span><span class="n">best_score</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
 </div>
-<p>That's it. neuropt reads your training curves, reasons about what's working, and proposes better configs.</p>
+</div>
+</div>
 <hr />
-<h2 id="or-skip-the-search-space-give-it-a-model">Or skip the search space — give it a model</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torchvision</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">neuropt</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchSearch</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">resnet18</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">train_fn</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">m</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>  <span class="c1"># modified deep copy</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="c1"># ... train ...</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">val_loss</span><span class="p">}</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="n">search</span> <span class="o">=</span> <span class="n">ArchSearch</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_fn</span><span class="p">)</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="n">search</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">max_evals</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<h2 id="or-skip-the-search-space">Or skip the search space</h2>
+<p>Give it a model — neuropt figures out what to tune.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torchvision</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">neuropt</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchSearch</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">resnet18</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">train_fn</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">m</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>   <span class="c1"># modified deep copy</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="c1"># ... train ...</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">val_loss</span><span class="p">,</span> <span class="s2">&quot;train_losses&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">],</span> <span class="s2">&quot;val_losses&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]}</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="n">search</span> <span class="o">=</span> <span class="n">ArchSearch</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_fn</span><span class="p">)</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="n">search</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">max_evals</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 </code></pre></div>
-<p>neuropt auto-detects activations, dropout, batch norm, pooling, and builds the search space for you. See <a href="../introspection/">Model Introspection</a> for details.</p>
+<p>Works with PyTorch models, XGBoost, LightGBM, Random Forest, and any sklearn estimator. See <a href="../introspection/">Model Introspection</a> for details.</p>
 <hr />
+<div class="admonition question">
+<p class="admonition-title">Are you stuck?</p>
+<ul>
+<li>No API key? Use <code>--backend none</code> for random search (no LLM needed)</li>
+<li>Using zsh? Quote the extras: <code>pip install "neuropt[llm]"</code></li>
+<li>Need OpenAI instead? <code>pip install "neuropt[llm-openai]"</code> and set <code>OPENAI_API_KEY</code></li>
+</ul>
+</div>
 <h2 id="options">Options</h2>
 <table>
 <thead>
@@ -1126,7 +1164,7 @@
 </tr>
 <tr>
 <td><code>--backend none</code></td>
-<td>Random search (no API key needed)</td>
+<td>Random search — no API key needed</td>
 </tr>
 <tr>
 <td><code>-n 50</code></td>
