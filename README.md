@@ -1,6 +1,13 @@
 # neuropt
 
 <p align="center">
+  <a href="https://pypi.org/project/neuropt/"><img alt="PyPI" src="https://img.shields.io/pypi/v/neuropt"></a>
+  <a href="https://github.com/loevlie/neuropt/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/loevlie/neuropt/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/loevlie/neuropt/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <a href="https://pypi.org/project/neuropt/"><img alt="Python" src="https://img.shields.io/pypi/pyversions/neuropt"></a>
+</p>
+
+<p align="center">
   <img src="assets/banner.png" alt="Three robot researchers designing neural network architectures" width="700">
 </p>
 
