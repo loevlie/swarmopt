@@ -43,6 +43,10 @@ With 14 parameters including categorical choices (activation, optimizer, pool ty
 
 Claude starts with knowledge of these interactions. Optuna has to discover each one empirically, burning evals on configurations that any ML practitioner would avoid.
 
+## 2-parameter search
+
+![2-param search results](assets/search_combined_15.png){ width="700" }
+
 ### Run it yourself
 
 ```bash

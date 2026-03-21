@@ -26,6 +26,10 @@ Same 15-eval budget on two tasks: CNN architecture search (14 params) and XGBoos
 
 In a separate 200-eval run on the CNN task, neuropt again beat the others within 15 evals and kept improving — reaching 0.337 val loss by eval 200 (vs 0.454 for Optuna's best at 15). Local Qwen backend (experimental) also beat Optuna at 15 evals (0.440 vs 0.454) despite a 40% JSON parse failure rate.
 
+<p align="center">
+  <img src="assets/search_combined_15.png" alt="2-param search: neuropt vs Optuna vs Random" width="700">
+</p>
+
 ## Quick start
 
 ```bash
