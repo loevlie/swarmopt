@@ -1,6 +1,6 @@
 [project]
 name = "neuropt"
-version = "0.6.0"
+version = "0.6.1"
 description = "LLM-guided ML optimization — point it at a training script, it reads the curves and designs better models"
 readme = "README.md"
 requires-python = ">=3.10"

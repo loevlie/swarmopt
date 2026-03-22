@@ -5,6 +5,7 @@
   <a href="https://github.com/loevlie/neuropt/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/loevlie/neuropt/actions/workflows/ci.yml/badge.svg"></a>
   <a href="https://github.com/loevlie/neuropt/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
   <a href="https://pypi.org/project/neuropt/"><img alt="Python" src="https://img.shields.io/pypi/pyversions/neuropt"></a>
+  <a href="https://colab.research.google.com/github/loevlie/neuropt/blob/main/examples/neuropt_demo.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg"></a>
 </p>
 
 <p align="center">
