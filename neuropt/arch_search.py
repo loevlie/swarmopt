@@ -222,15 +222,20 @@ class ArchSearch:
         self.llm_success = 0
         self.llm_fallback = 0
 
-    def run(self, max_evals: int | None = None):
+    def run(self, max_evals: int | None = None, resume: bool = True):
         """Run the search loop.
 
         Args:
             max_evals: Stop after this many experiments. If None, runs
                 until Ctrl+C (useful for CLI / overnight). Set this for
                 notebooks or scripted use.
+            resume: If True (default), continue from existing log file.
+                If False, start fresh by clearing any existing log.
         """
         self._setup_signals()
+
+        if not resume and os.path.exists(self.log_path):
+            os.remove(self.log_path)
 
         logger = _JSONLLogger(self.log_path)
         history = logger.load_history()
