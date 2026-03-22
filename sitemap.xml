@@ -2,42 +2,42 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://loevlie.github.io/neuropt/</loc>
-         <lastmod>2026-03-19</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://loevlie.github.io/neuropt/api/</loc>
-         <lastmod>2026-03-19</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://loevlie.github.io/neuropt/benchmarks/</loc>
-         <lastmod>2026-03-19</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://loevlie.github.io/neuropt/cli/</loc>
-         <lastmod>2026-03-19</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://loevlie.github.io/neuropt/examples/</loc>
-         <lastmod>2026-03-19</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://loevlie.github.io/neuropt/fine-tuning/</loc>
-         <lastmod>2026-03-19</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://loevlie.github.io/neuropt/how-it-works/</loc>
-         <lastmod>2026-03-19</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://loevlie.github.io/neuropt/introspection/</loc>
-         <lastmod>2026-03-19</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://loevlie.github.io/neuropt/quickstart/</loc>
-         <lastmod>2026-03-19</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://loevlie.github.io/neuropt/xgboost/</loc>
-         <lastmod>2026-03-19</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
 </urlset>
